@@ -85,6 +85,9 @@ incidents/                                incident log (hash-chained, genesis at
 which tradable universe were in force, with a one-cycle change-notice rule
 for both.
 
+Each week's full archive is also published here encrypted, and opens
+automatically 24 months after its seal.
+
 ## Trust model
 
 GitHub is hygiene here, not the trust anchor — the OpenTimestamps chain is.
