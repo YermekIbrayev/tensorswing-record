@@ -1,0 +1,1011 @@
+{
+  "rule": {
+    "version": "V1 RULES",
+    "effective": "11 AUG 2026",
+    "stockCount": 100,
+    "etfs": [
+      {
+        "group": "INDEX",
+        "tickers": [
+          "SPY",
+          "QQQ",
+          "IWM",
+          "DIA"
+        ]
+      },
+      {
+        "group": "SECTOR",
+        "tickers": [
+          "XLK",
+          "XLF",
+          "XLE",
+          "XLV",
+          "XLI",
+          "XLY",
+          "XLP",
+          "XLU",
+          "XLB",
+          "XLRE",
+          "XLC"
+        ]
+      },
+      {
+        "group": "MACRO",
+        "tickers": [
+          "GLD",
+          "TLT"
+        ]
+      },
+      {
+        "group": "INTL",
+        "tickers": [
+          "EEM",
+          "FXI"
+        ]
+      }
+    ],
+    "refreshes": [
+      {
+        "date": "2026-08-11",
+        "delta": "initial (rule v1 adoption)",
+        "commit": "50f0006"
+      }
+    ],
+    "nextRefresh": "01 OCT 2026"
+  },
+  "constituents": [
+    {
+      "ticker": "SPY",
+      "name": "S&P 500",
+      "medianDollarVolume": "$35.8B",
+      "assetClass": "indexETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "QQQ",
+      "name": "Nasdaq 100",
+      "medianDollarVolume": "$30.0B",
+      "assetClass": "indexETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "IWM",
+      "name": "Russell 2000",
+      "medianDollarVolume": "$7.0B",
+      "assetClass": "indexETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "DIA",
+      "name": "Dow Jones 30",
+      "medianDollarVolume": "$2.3B",
+      "assetClass": "indexETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "XLK",
+      "name": "Technology Select Sector SPDR",
+      "medianDollarVolume": "$2.1B",
+      "assetClass": "sectorETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "XLF",
+      "name": "Financial Select Sector SPDR",
+      "medianDollarVolume": "$1.8B",
+      "assetClass": "sectorETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "XLE",
+      "name": "Energy Select Sector SPDR",
+      "medianDollarVolume": "$1.9B",
+      "assetClass": "sectorETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "XLV",
+      "name": "Health Care Select Sector SPDR",
+      "medianDollarVolume": "$1.6B",
+      "assetClass": "sectorETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "XLI",
+      "name": "Industrial Select Sector SPDR",
+      "medianDollarVolume": "$1.3B",
+      "assetClass": "sectorETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "XLY",
+      "name": "Consumer Discretionary Select SPDR",
+      "medianDollarVolume": "$893M",
+      "assetClass": "sectorETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "XLP",
+      "name": "Consumer Staples Select Sector SPDR",
+      "medianDollarVolume": "$980M",
+      "assetClass": "sectorETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "XLU",
+      "name": "Utilities Select Sector SPDR",
+      "medianDollarVolume": "$863M",
+      "assetClass": "sectorETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "XLB",
+      "name": "Materials Select Sector SPDR",
+      "medianDollarVolume": "$561M",
+      "assetClass": "sectorETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "XLRE",
+      "name": "Real Estate Select Sector SPDR",
+      "medianDollarVolume": "$217M",
+      "assetClass": "sectorETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "XLC",
+      "name": "Communication Services Select SPDR",
+      "medianDollarVolume": "$659M",
+      "assetClass": "sectorETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "GLD",
+      "name": "SPDR Gold Shares",
+      "medianDollarVolume": "$2.5B",
+      "assetClass": "macroETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "TLT",
+      "name": "iShares 20+ Year Treasury",
+      "medianDollarVolume": "$2.1B",
+      "assetClass": "macroETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "EEM",
+      "name": "iShares MSCI Emerging Markets",
+      "medianDollarVolume": "$1.7B",
+      "assetClass": "intlETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "FXI",
+      "name": "iShares China Large-Cap",
+      "medianDollarVolume": "$832M",
+      "assetClass": "intlETF",
+      "rank": null,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "MU",
+      "name": "Micron Technology Inc.",
+      "medianDollarVolume": "$46.2B",
+      "assetClass": "stock",
+      "rank": 1,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corp.",
+      "medianDollarVolume": "$29.3B",
+      "assetClass": "stock",
+      "rank": 2,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "SNDK",
+      "name": "Sandisk Corp.",
+      "medianDollarVolume": "$20.8B",
+      "assetClass": "stock",
+      "rank": 3,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "TSLA",
+      "name": "Tesla Inc.",
+      "medianDollarVolume": "$17.2B",
+      "assetClass": "stock",
+      "rank": 4,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "AAPL",
+      "name": "Apple Inc.",
+      "medianDollarVolume": "$15.2B",
+      "assetClass": "stock",
+      "rank": 5,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "AMD",
+      "name": "Advanced Micro Devices Inc.",
+      "medianDollarVolume": "$14.6B",
+      "assetClass": "stock",
+      "rank": 6,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "MSFT",
+      "name": "Microsoft Corp.",
+      "medianDollarVolume": "$14.0B",
+      "assetClass": "stock",
+      "rank": 7,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "INTC",
+      "name": "Intel Corp.",
+      "medianDollarVolume": "$13.2B",
+      "assetClass": "stock",
+      "rank": 8,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "AMZN",
+      "name": "Amazon.com Inc.",
+      "medianDollarVolume": "$10.5B",
+      "assetClass": "stock",
+      "rank": 9,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "GOOGL",
+      "name": "Alphabet Inc.",
+      "medianDollarVolume": "$10.3B",
+      "assetClass": "stock",
+      "rank": 10,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "META",
+      "name": "Meta Platforms Inc.",
+      "medianDollarVolume": "$10.0B",
+      "assetClass": "stock",
+      "rank": 11,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "AVGO",
+      "name": "Broadcom Inc.",
+      "medianDollarVolume": "$8.8B",
+      "assetClass": "stock",
+      "rank": 12,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "GOOG",
+      "name": "Alphabet Inc.",
+      "medianDollarVolume": "$7.0B",
+      "assetClass": "stock",
+      "rank": 13,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "MRVL",
+      "name": "Marvell Technology Inc.",
+      "medianDollarVolume": "$6.2B",
+      "assetClass": "stock",
+      "rank": 14,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "TSM",
+      "name": "Taiwan Semiconductor Manufacturing Company Limited",
+      "medianDollarVolume": "$5.3B",
+      "assetClass": "stock",
+      "rank": 15,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "PLTR",
+      "name": "Palantir Technologies Inc.",
+      "medianDollarVolume": "$5.0B",
+      "assetClass": "stock",
+      "rank": 16,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "ORCL",
+      "name": "Oracle Corp.",
+      "medianDollarVolume": "$4.9B",
+      "assetClass": "stock",
+      "rank": 17,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "AMAT",
+      "name": "Applied Materials Inc.",
+      "medianDollarVolume": "$4.5B",
+      "assetClass": "stock",
+      "rank": 18,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "WDC",
+      "name": "Western Digital Corp.",
+      "medianDollarVolume": "$4.1B",
+      "assetClass": "stock",
+      "rank": 19,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "LITE",
+      "name": "Lumentum Holdings Inc.",
+      "medianDollarVolume": "$3.9B",
+      "assetClass": "stock",
+      "rank": 20,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "NBIS",
+      "name": "Nebius Group N.V.",
+      "medianDollarVolume": "$3.9B",
+      "assetClass": "stock",
+      "rank": 21,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "STX",
+      "name": "Seagate Technology Holdings PLC",
+      "medianDollarVolume": "$3.8B",
+      "assetClass": "stock",
+      "rank": 22,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "QCOM",
+      "name": "QUALCOMM Inc.",
+      "medianDollarVolume": "$3.5B",
+      "assetClass": "stock",
+      "rank": 23,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "LRCX",
+      "name": "Lam Research Corp.",
+      "medianDollarVolume": "$3.4B",
+      "assetClass": "stock",
+      "rank": 24,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "LLY",
+      "name": "Eli Lilly and Company",
+      "medianDollarVolume": "$3.2B",
+      "assetClass": "stock",
+      "rank": 25,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "BE",
+      "name": "Bloom Energy Corp.",
+      "medianDollarVolume": "$3.1B",
+      "assetClass": "stock",
+      "rank": 26,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "ASML",
+      "name": "ASML Holding N.V.",
+      "medianDollarVolume": "$3.1B",
+      "assetClass": "stock",
+      "rank": 27,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "NFLX",
+      "name": "Netflix Inc.",
+      "medianDollarVolume": "$3.0B",
+      "assetClass": "stock",
+      "rank": 28,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "DELL",
+      "name": "Dell Technologies Inc.",
+      "medianDollarVolume": "$2.9B",
+      "assetClass": "stock",
+      "rank": 29,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "GEV",
+      "name": "GE Vernova Inc.",
+      "medianDollarVolume": "$2.7B",
+      "assetClass": "stock",
+      "rank": 30,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "CSCO",
+      "name": "Cisco Systems Inc.",
+      "medianDollarVolume": "$2.7B",
+      "assetClass": "stock",
+      "rank": 31,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "JPM",
+      "name": "JP Morgan Chase & Co.",
+      "medianDollarVolume": "$2.6B",
+      "assetClass": "stock",
+      "rank": 32,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "V",
+      "name": "Visa Inc.",
+      "medianDollarVolume": "$2.6B",
+      "assetClass": "stock",
+      "rank": 33,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "CAT",
+      "name": "Caterpillar Inc.",
+      "medianDollarVolume": "$2.6B",
+      "assetClass": "stock",
+      "rank": 34,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "WMT",
+      "name": "Walmart Inc.",
+      "medianDollarVolume": "$2.6B",
+      "assetClass": "stock",
+      "rank": 35,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "APP",
+      "name": "AppLovin Corp.",
+      "medianDollarVolume": "$2.5B",
+      "assetClass": "stock",
+      "rank": 36,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "NOW",
+      "name": "ServiceNow Inc.",
+      "medianDollarVolume": "$2.5B",
+      "assetClass": "stock",
+      "rank": 37,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "KLAC",
+      "name": "KLA Corp.",
+      "medianDollarVolume": "$2.5B",
+      "assetClass": "stock",
+      "rank": 38,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "ARM",
+      "name": "Arm Holdings plc",
+      "medianDollarVolume": "$2.4B",
+      "assetClass": "stock",
+      "rank": 39,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "TXN",
+      "name": "Texas Instruments Inc.",
+      "medianDollarVolume": "$2.3B",
+      "assetClass": "stock",
+      "rank": 40,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "UNH",
+      "name": "UnitedHealth Group Inc.",
+      "medianDollarVolume": "$2.3B",
+      "assetClass": "stock",
+      "rank": 41,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "CRWV",
+      "name": "CoreWeave Inc.",
+      "medianDollarVolume": "$2.3B",
+      "assetClass": "stock",
+      "rank": 42,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "GLW",
+      "name": "Corning Inc.",
+      "medianDollarVolume": "$2.3B",
+      "assetClass": "stock",
+      "rank": 43,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "CRM",
+      "name": "Salesforce Inc.",
+      "medianDollarVolume": "$2.3B",
+      "assetClass": "stock",
+      "rank": 44,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "BRK-B",
+      "name": "Berkshire Hathaway Inc.",
+      "medianDollarVolume": "$2.2B",
+      "assetClass": "stock",
+      "rank": 45,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "XOM",
+      "name": "ExxonMobil Holdings Corp.",
+      "medianDollarVolume": "$2.2B",
+      "assetClass": "stock",
+      "rank": 46,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "RKLB",
+      "name": "Rocket Lab Corp.",
+      "medianDollarVolume": "$2.2B",
+      "assetClass": "stock",
+      "rank": 47,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "GS",
+      "name": "Goldman Sachs Group Inc.",
+      "medianDollarVolume": "$2.2B",
+      "assetClass": "stock",
+      "rank": 48,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "HOOD",
+      "name": "Robinhood Markets Inc.",
+      "medianDollarVolume": "$2.1B",
+      "assetClass": "stock",
+      "rank": 49,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "IBM",
+      "name": "International Business Machines Corp.",
+      "medianDollarVolume": "$2.1B",
+      "assetClass": "stock",
+      "rank": 50,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "PANW",
+      "name": "Palo Alto Networks Inc.",
+      "medianDollarVolume": "$2.1B",
+      "assetClass": "stock",
+      "rank": 51,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "COST",
+      "name": "Costco Wholesale Corp.",
+      "medianDollarVolume": "$2.1B",
+      "assetClass": "stock",
+      "rank": 52,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "MSTR",
+      "name": "Strategy Inc",
+      "medianDollarVolume": "$2.1B",
+      "assetClass": "stock",
+      "rank": 53,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "IREN",
+      "name": "IREN Limited",
+      "medianDollarVolume": "$2.0B",
+      "assetClass": "stock",
+      "rank": 54,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "ALAB",
+      "name": "Astera Labs Inc.",
+      "medianDollarVolume": "$1.9B",
+      "assetClass": "stock",
+      "rank": 55,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "JNJ",
+      "name": "Johnson & Johnson",
+      "medianDollarVolume": "$1.9B",
+      "assetClass": "stock",
+      "rank": 56,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "COHR",
+      "name": "Coherent Corp.",
+      "medianDollarVolume": "$1.9B",
+      "assetClass": "stock",
+      "rank": 57,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "BAC",
+      "name": "Bank of America Corp.",
+      "medianDollarVolume": "$1.9B",
+      "assetClass": "stock",
+      "rank": 58,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "CRWD",
+      "name": "CrowdStrike Holdings Inc.",
+      "medianDollarVolume": "$1.8B",
+      "assetClass": "stock",
+      "rank": 59,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "ADI",
+      "name": "Analog Devices Inc.",
+      "medianDollarVolume": "$1.8B",
+      "assetClass": "stock",
+      "rank": 60,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "MA",
+      "name": "Mastercard Inc.",
+      "medianDollarVolume": "$1.8B",
+      "assetClass": "stock",
+      "rank": 61,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "VRT",
+      "name": "Vertiv Holdings Co",
+      "medianDollarVolume": "$1.7B",
+      "assetClass": "stock",
+      "rank": 62,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "AAOI",
+      "name": "Applied Optoelectronics Inc.",
+      "medianDollarVolume": "$1.7B",
+      "assetClass": "stock",
+      "rank": 63,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "CRDO",
+      "name": "Credo Technology Group Holding Ltd",
+      "medianDollarVolume": "$1.6B",
+      "assetClass": "stock",
+      "rank": 64,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "CVX",
+      "name": "Chevron Corp.",
+      "medianDollarVolume": "$1.5B",
+      "assetClass": "stock",
+      "rank": 65,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "ASTS",
+      "name": "AST SpaceMobile Inc.",
+      "medianDollarVolume": "$1.5B",
+      "assetClass": "stock",
+      "rank": 66,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "AAL",
+      "name": "American Airlines Group Inc.",
+      "medianDollarVolume": "$1.5B",
+      "assetClass": "stock",
+      "rank": 67,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "C",
+      "name": "Citigroup Inc.",
+      "medianDollarVolume": "$1.5B",
+      "assetClass": "stock",
+      "rank": 68,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "GE",
+      "name": "GE Aerospace",
+      "medianDollarVolume": "$1.5B",
+      "assetClass": "stock",
+      "rank": 69,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "HD",
+      "name": "Home Depot Inc.",
+      "medianDollarVolume": "$1.4B",
+      "assetClass": "stock",
+      "rank": 70,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "SNOW",
+      "name": "Snowflake Inc.",
+      "medianDollarVolume": "$1.4B",
+      "assetClass": "stock",
+      "rank": 71,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "ANET",
+      "name": "Arista Networks Inc.",
+      "medianDollarVolume": "$1.4B",
+      "assetClass": "stock",
+      "rank": 72,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "INTU",
+      "name": "Intuit Inc.",
+      "medianDollarVolume": "$1.4B",
+      "assetClass": "stock",
+      "rank": 73,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "SMCI",
+      "name": "Super Micro Computer Inc.",
+      "medianDollarVolume": "$1.4B",
+      "assetClass": "stock",
+      "rank": 74,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "TER",
+      "name": "Teradyne Inc.",
+      "medianDollarVolume": "$1.3B",
+      "assetClass": "stock",
+      "rank": 75,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "KO",
+      "name": "Coca-Cola Company",
+      "medianDollarVolume": "$1.3B",
+      "assetClass": "stock",
+      "rank": 76,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "UBER",
+      "name": "Uber Technologies Inc.",
+      "medianDollarVolume": "$1.3B",
+      "assetClass": "stock",
+      "rank": 77,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "SOFI",
+      "name": "SoFi Technologies Inc.",
+      "medianDollarVolume": "$1.3B",
+      "assetClass": "stock",
+      "rank": 78,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "COIN",
+      "name": "Coinbase Global Inc.",
+      "medianDollarVolume": "$1.3B",
+      "assetClass": "stock",
+      "rank": 79,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "BA",
+      "name": "The Boeing Company",
+      "medianDollarVolume": "$1.3B",
+      "assetClass": "stock",
+      "rank": 80,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "APH",
+      "name": "Amphenol Corp.",
+      "medianDollarVolume": "$1.3B",
+      "assetClass": "stock",
+      "rank": 81,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "ABBV",
+      "name": "AbbVie Inc.",
+      "medianDollarVolume": "$1.3B",
+      "assetClass": "stock",
+      "rank": 82,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "ADBE",
+      "name": "Adobe Inc.",
+      "medianDollarVolume": "$1.3B",
+      "assetClass": "stock",
+      "rank": 83,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "T",
+      "name": "AT&T Inc.",
+      "medianDollarVolume": "$1.3B",
+      "assetClass": "stock",
+      "rank": 84,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "BABA",
+      "name": "Alibaba Group Holding Limited",
+      "medianDollarVolume": "$1.2B",
+      "assetClass": "stock",
+      "rank": 85,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "NOK",
+      "name": "Nokia Corporation Sponsored",
+      "medianDollarVolume": "$1.2B",
+      "assetClass": "stock",
+      "rank": 86,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "PG",
+      "name": "Procter & Gamble Company",
+      "medianDollarVolume": "$1.2B",
+      "assetClass": "stock",
+      "rank": 87,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "MPWR",
+      "name": "Monolithic Power Systems Inc.",
+      "medianDollarVolume": "$1.2B",
+      "assetClass": "stock",
+      "rank": 88,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "WFC",
+      "name": "Wells Fargo & Company",
+      "medianDollarVolume": "$1.2B",
+      "assetClass": "stock",
+      "rank": 89,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "BKNG",
+      "name": "Booking Holdings Inc.",
+      "medianDollarVolume": "$1.2B",
+      "assetClass": "stock",
+      "rank": 90,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "PEP",
+      "name": "PepsiCo Inc.",
+      "medianDollarVolume": "$1.2B",
+      "assetClass": "stock",
+      "rank": 91,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "MCD",
+      "name": "McDonald's Corp.",
+      "medianDollarVolume": "$1.2B",
+      "assetClass": "stock",
+      "rank": 92,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "ON",
+      "name": "ON Semiconductor Corp.",
+      "medianDollarVolume": "$1.2B",
+      "assetClass": "stock",
+      "rank": 93,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "MS",
+      "name": "Morgan Stanley",
+      "medianDollarVolume": "$1.2B",
+      "assetClass": "stock",
+      "rank": 94,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "DDOG",
+      "name": "Datadog Inc.",
+      "medianDollarVolume": "$1.1B",
+      "assetClass": "stock",
+      "rank": 95,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "CBRS",
+      "name": "Cerebras Systems Inc.",
+      "medianDollarVolume": "$1.1B",
+      "assetClass": "stock",
+      "rank": 96,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "MRK",
+      "name": "Merck & Company Inc.",
+      "medianDollarVolume": "$1.1B",
+      "assetClass": "stock",
+      "rank": 97,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "LIN",
+      "name": "Linde plc",
+      "medianDollarVolume": "$1.1B",
+      "assetClass": "stock",
+      "rank": 98,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "NXPI",
+      "name": "NXP Semiconductors N.V.",
+      "medianDollarVolume": "$1.1B",
+      "assetClass": "stock",
+      "rank": 99,
+      "calledThisWeek": false
+    },
+    {
+      "ticker": "VZ",
+      "name": "Verizon Communications Inc.",
+      "medianDollarVolume": "$1.1B",
+      "assetClass": "stock",
+      "rank": 100,
+      "calledThisWeek": false
+    }
+  ],
+  "change_notice_rule": "Changes to this roster take effect no earlier than one full weekly cycle after the change is committed to this repository."
+}

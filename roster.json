@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "effective_from_week": "2026-W35",
+  "change_notice_rule": "Changes to this roster take effect no earlier than one full weekly cycle after the change is committed to this repository.",
+  "models": [
+    {"slug": "n-hits", "name": "N-HITS", "kind": "in-house neural forecaster, MC-dropout uncertainty"},
+    {"slug": "patchtst", "name": "PATCHTST", "kind": "in-house neural forecaster, MC-dropout uncertainty"},
+    {"slug": "chronos", "name": "CHRONOS", "kind": "Amazon Chronos (third-party), native quantiles"}
+  ]
+}

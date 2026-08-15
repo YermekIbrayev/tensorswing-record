@@ -1,0 +1,8 @@
+{
+  "number": 0,
+  "kind": "genesis",
+  "week": null,
+  "detail": "Genesis record. No incidents have occurred; this entry anchors the hash chain.",
+  "prev_incident_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "recorded_at": "2026-08-15T17:35:42Z"
+}
