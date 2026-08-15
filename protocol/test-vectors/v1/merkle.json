@@ -1,0 +1,45 @@
+{
+  "description": "Merkle vectors for protocol \u00a75. commitment i is SHA-256 of the ASCII string 'tsw:example:i'. Roots are over the first n commitments in listed order. The inclusion proof is for index 2 of the 5-leaf tree; sibling hashes are node hashes, not commitments.",
+  "commitments_hex": [
+    "bdba9ea154feb501b354e51fdb089a01602ab5edd086790b687242bffdcec537",
+    "1f22497196b79affc9851add93b4f8275d6386ad856b1f989bf160b39b1283d4",
+    "2b2019c0d45ad60aa3ee1e235eef0f69cd944c3dd8c3addbba2941a7437ad22b",
+    "413f15edea311508d0694b953d8656358496f8b989f96bf2c0a32eaaec652e82",
+    "020eb4baa5c2021738cb2a236af6922b9679b3c3fefaaf50e553d889be0f6cd5"
+  ],
+  "roots": {
+    "1": "1608272390db385177d7abe7effa5461afec68386ab97ded9b4b8158c2f92634",
+    "2": "000ed20e9182756e7c92ff27176383d7786a0965d75ecb0a44a2ea8858959353",
+    "3": "32ebe6ce0ebd67051523766848cba3da5e80f36a3667dcc291bba5039585da96",
+    "5": "a14f259cc693af294cda07fcc9b86131e750850c165f71f7112c137e4e5ebd95"
+  },
+  "three_leaf_intermediates": {
+    "leaf_nodes": [
+      "1608272390db385177d7abe7effa5461afec68386ab97ded9b4b8158c2f92634",
+      "bb51005431fa0722692a67c4cfc96951364fcbd5ef712d47b2510bd2b4fc3879",
+      "6f7cecb5f51b021d7c71c2e7f8fedd071ad76cfde9290c5d8010299b79c8ca50"
+    ],
+    "h01": "000ed20e9182756e7c92ff27176383d7786a0965d75ecb0a44a2ea8858959353",
+    "root": "32ebe6ce0ebd67051523766848cba3da5e80f36a3667dcc291bba5039585da96"
+  },
+  "inclusion_proof": {
+    "leaf_count": 5,
+    "index": 2,
+    "commitment_hex": "2b2019c0d45ad60aa3ee1e235eef0f69cd944c3dd8c3addbba2941a7437ad22b",
+    "proof": [
+      [
+        "R",
+        "40b9ceef9b8f80a6fd742a1ffc5bf58b2ed6f391b11a6d02b07b9f8513f54b13"
+      ],
+      [
+        "L",
+        "000ed20e9182756e7c92ff27176383d7786a0965d75ecb0a44a2ea8858959353"
+      ],
+      [
+        "R",
+        "874549774df916f7dda319ab47669b3332c9d981f5a97a3c6c17b1a21993c0a6"
+      ]
+    ],
+    "merkle_root": "a14f259cc693af294cda07fcc9b86131e750850c165f71f7112c137e4e5ebd95"
+  }
+}

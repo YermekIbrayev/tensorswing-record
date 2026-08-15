@@ -1,0 +1,42 @@
+{
+  "description": "Canonical serialization vectors (protocol \u00a73). 'canonical' is the exact byte string (ASCII); 'sha256' is SHA-256 over those bytes.",
+  "cases": [
+    {
+      "name": "two-key object with a float (the worked example in \u00a73)",
+      "input": {
+        "week": "2026-W35",
+        "pct": -3.07
+      },
+      "canonical": "{\"pct\":-3.07,\"week\":\"2026-W35\"}",
+      "canonical_length": 31,
+      "sha256": "2f8811f122e39e8237e6706d65f0267eea49d86df491d41ed159d03abb0545bf"
+    },
+    {
+      "name": "non-ASCII: BMP escapes and an astral surrogate pair",
+      "input": {
+        "note": "caf\u00e9 \u2615 \ud83d\ude80"
+      },
+      "canonical": "{\"note\":\"caf\\u00e9 \\u2615 \\ud83d\\ude80\"}",
+      "canonical_length": 40,
+      "sha256": "65522369430c54b415d344990149102e7941287d6c4c1fdac8002be962ecd612"
+    },
+    {
+      "name": "nested sorting, bare integer, shortest-round-trip float, null, bool",
+      "input": {
+        "b": [
+          1,
+          0.30000000000000004,
+          null,
+          true
+        ],
+        "a": {
+          "z": 100.0,
+          "y": "x"
+        }
+      },
+      "canonical": "{\"a\":{\"y\":\"x\",\"z\":100.0},\"b\":[1,0.30000000000000004,null,true]}",
+      "canonical_length": 63,
+      "sha256": "b7cf53322ccf2bae079a50cdc12252a0c1184fc2934e857d6de615cbc7ab3cd6"
+    }
+  ]
+}

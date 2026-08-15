@@ -1,0 +1,34 @@
+{
+  "description": "Audit index derivation vector for protocol \u00a79. beacon_signature is 64 bytes of 0xab (synthetic; real quicknet signatures are 48-byte G1 points). HMAC-SHA256 keyed by the signature bytes over UTF-8 '<week>|<counter>', big-endian, rejection-sampled, duplicates skipped.",
+  "beacon_signature_hex": "abababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab",
+  "week": "2026-W35",
+  "leaf_count": 357,
+  "expected": {
+    "k": 20,
+    "indices": [
+      13,
+      355,
+      156,
+      322,
+      264,
+      140,
+      106,
+      340,
+      220,
+      159,
+      118,
+      351,
+      248,
+      200,
+      157,
+      9,
+      223,
+      123,
+      352,
+      314
+    ],
+    "counters_consumed": 20,
+    "rejections": 0,
+    "duplicates_skipped": 0
+  }
+}

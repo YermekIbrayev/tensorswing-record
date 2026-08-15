@@ -1,0 +1,32 @@
+{
+  "description": "HKDF-SHA256 (RFC 5869) vectors for protocol \u00a74. The protocol uses salt = empty (equivalent under HMAC key padding to 32 zero bytes) and L = 32.",
+  "cases": [
+    {
+      "name": "RFC 5869 Appendix A.1 (SHA-256)",
+      "ikm_hex": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+      "salt_hex": "000102030405060708090a0b0c",
+      "info_hex": "f0f1f2f3f4f5f6f7f8f9",
+      "length": 42,
+      "prk_hex": "077709362c2e32df0ddc3f0dc47bba6390b6c73bb50f9c3122ec844ad7c2b3e5",
+      "okm_hex": "3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf34007208d5b887185865"
+    },
+    {
+      "name": "leaf salt for leaf_id chronos/QQQ",
+      "ikm_hex": "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff",
+      "salt_hex": "",
+      "info": "chronos/QQQ",
+      "info_hex": "6368726f6e6f732f515151",
+      "length": 32,
+      "okm_hex": "b39889df2a9e6fc7a2fd889784cb57737ce0b176b3f7725421c628c3d9efc93d"
+    },
+    {
+      "name": "archive_key",
+      "ikm_hex": "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff",
+      "salt_hex": "",
+      "info": "archive",
+      "info_hex": "61726368697665",
+      "length": 32,
+      "okm_hex": "1ce1701c10f3d980321b979f9cb61ab52cd9c132b16b225abe4fbc4666ea1ccb"
+    }
+  ]
+}

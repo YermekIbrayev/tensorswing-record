@@ -1,0 +1,849 @@
+# TensorSwing Record Protocol, version 1.0.0
+
+This document is the normative specification of the TensorSwing public
+prediction record hosted at `github.com/YermekIbrayev/tensorswing-record`.
+Two independent implementations are written against it: the sealed ML
+pipeline that produces the record, and any external verifier that checks
+it. Where this document and any implementation disagree, this document
+governs.
+
+This file is immutable once merged. Changes are made only by adding a new
+`protocol/vX.Y.Z.md` under the rules of §14. The root `PROTOCOL.md` is
+always a byte-identical copy of the latest versioned protocol file.
+
+The key words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD
+NOT, RECOMMENDED, MAY, and OPTIONAL in this document are to be interpreted
+as described in BCP 14 (RFC 2119, RFC 8174) when, and only when, they
+appear in all capitals.
+
+## 1. Scope and claims ceiling
+
+### 1.1 What verification proves
+
+A week that passes the full verification procedure of §13 establishes
+exactly the following, and nothing more:
+
+- **Existence at seal time (no backdating).** The committed prediction
+  set existed, in exactly its committed form, no later than the time
+  attested by the timestamps of §7. It cannot have been written or edited
+  after the outcomes it predicts became known.
+- **Set fixity and completeness of the declared shape.** The sealed set
+  contains exactly `leaf_count` leaves with exactly the declared
+  `leaf_ids` — one per (model, ticker) pair in force — and no leaf can be
+  added, removed, replaced, or reordered after seal without detection.
+- **Sampled label honesty.** For the audited subset of §9 — selected by a
+  public randomness beacon the operator cannot influence — the revealed
+  predictions match their commitments, and their published labels match
+  the revealed predictions under the grading rule of §8.
+- **Forced eventual disclosure.** Every sealed week opens in full at its
+  embargo date under §10; the operator cannot suppress a past week.
+
+### 1.2 What verification does not prove
+
+Verification does NOT prove: full-set accuracy (only the audited sample
+is checked against its labels), model quality, profitability, or anything
+about future weeks. Nothing in this record is investment advice.
+
+### 1.3 Approved register
+
+The following phrases are the approved register for describing this
+record. They are to be used verbatim, and the register is binding on all
+marketing:
+
+- "cryptographically committed before Monday's market open"
+- "publicly timestamped"
+- "anchored to the Bitcoin blockchain via OpenTimestamps — anyone can
+  verify the timestamp without trusting us"
+- "spot-checked weekly by a public randomness beacon we cannot influence"
+- "fully checkable by any subscriber"
+
+### 1.4 Banned words
+
+The following words MUST NOT appear in the record's own documentation as
+descriptions of the record: "verified", "audited", "tamper-proof",
+"fully transparent", and bare "independently checkable". (Qualified forms
+that state exactly who checks what — as the register above does — are the
+replacement, not an exception.)
+
+### 1.5 Honesty template
+
+Per the honesty template this record is built on, the timestamp "removes
+exactly one trust assumption — that we could have backdated our own
+record — and that is all it removes."
+
+## 2. Terms and notation
+
+- **leaf.** One model's sealed prediction document for one ticker for one
+  week. Leaf content schema is owned by the pipeline, not fixed here,
+  except for the minimum fields required by §8.4.
+- **leaf_id.** The string `<model-slug>/<TICKER>`, where `model-slug` is
+  a slug from the `roster.json` in force for the week and `TICKER` is the
+  uppercase symbol from the `universe.json` in force. Under the roster in
+  force at protocol 1.0.0 adoption, model-slug ∈ {`n-hits`, `patchtst`,
+  `chronos`} (lowercase; display names N-HITS, PATCHTST, CHRONOS).
+- **Week key.** ISO 8601 week label `YYYY-Www` (e.g. `2026-W35`), week
+  number zero-padded to two digits. The cycle week's trading days are its
+  ISO Monday through Friday.
+- **Seal.** Sunday publication of the week's commitments before Monday's
+  US market open (09:30:00 ET of the cycle week's Monday). Sealing at or
+  after that instant is a `late-seal` incident (§12).
+- **Hashes.** All hashes in this protocol are SHA-256. Wherever a hash is
+  written as text it is 64 lowercase hexadecimal characters.
+- **ET.** All times ET refer to the IANA timezone `America/New_York`,
+  with daylight-saving transitions applied (DST-aware).
+- **`a ‖ b`.** Concatenation of the byte strings `a` and `b`.
+- **hex.** Lowercase hexadecimal, two characters per byte, no prefix.
+- **base64.** RFC 4648 §4 standard alphabet, with `=` padding, no line
+  breaks or whitespace.
+- **64 zeros.** The 64-character ASCII string consisting solely of the
+  character `0`.
+- **Big-endian integer.** A byte string of length n interpreted as an
+  unsigned integer, most significant byte first.
+- **Bytewise order.** Lexicographic order of UTF-8 byte strings compared
+  byte by byte as unsigned values, shorter prefix first.
+- **week.** Unless qualified, "the week" means the week key of the cycle
+  being discussed.
+
+## 3. Canonical serialization
+
+Every JSON artifact defined by this protocol — leaves, manifests, label
+files, reveal files, audit records, incident entries (§12.2 notes the one
+grandfathered exception) — is serialized canonically as follows. The
+canonical bytes of a document are what every hash in this protocol is
+computed over.
+
+Canonical serialization rules:
+
+1. The document is UTF-8 encoded JSON. (After rule 5 the byte string is
+   pure ASCII.)
+2. Object keys are sorted lexicographically at every level of nesting, by
+   Unicode code point of the key string. Duplicate keys MUST NOT occur.
+3. Separators are `(",", ":")` — a single comma between items, a single
+   colon between key and value, and no whitespace anywhere outside string
+   literals.
+4. There is no trailing newline and no leading byte-order mark.
+5. Every character outside the ASCII range is escaped as `\uXXXX` with
+   lowercase hexadecimal digits, Python `ensure_ascii=True` semantics:
+   characters above U+FFFF are encoded as a UTF-16 surrogate pair of two
+   `\uXXXX` escapes. Within strings, the two-character escapes `\"`,
+   `\\`, `\b`, `\f`, `\n`, `\r`, `\t` are used where applicable and other
+   control characters use `\uXXXX`.
+6. Integers are bare: no decimal point, no exponent, no leading zeros, a
+   leading `-` only when negative.
+7. Floats are rendered in Python `repr` shortest form: the shortest
+   decimal string that round-trips to the same IEEE 754 binary64 value.
+   `NaN`, `Infinity`, and `-Infinity` MUST NOT appear.
+8. `null`, `true`, and `false` are rendered literally.
+
+These rules are exactly the output of Python 3's
+
+    json.dumps(obj, sort_keys=True, separators=(",", ":"),
+               ensure_ascii=True).encode("utf-8")
+
+and an implementation in any language MUST be byte-identical to that.
+
+### 3.1 Worked example
+
+The two-key object (shown here in ordinary JSON):
+
+    {"week": "2026-W35", "pct": -3.07}
+
+canonicalizes to exactly this 31-byte string:
+
+    {"pct":-3.07,"week":"2026-W35"}
+
+whose SHA-256 is:
+
+    2f8811f122e39e8237e6706d65f0267eea49d86df491d41ed159d03abb0545bf
+
+This example, and every other hash and vector in this document, was
+generated by executing the serialization and hash functions, not by hand.
+Further canonicalization cases, including non-ASCII escaping and
+shortest-form floats, are pinned in `protocol/test-vectors/v1/`.
+
+## 4. Commitments
+
+### 4.1 week_seed
+
+For each week the pipeline draws a fresh `week_seed`: 32 random bytes
+from a cryptographically secure generator. The week_seed is private at
+seal. It MUST NOT be reused across weeks and MUST be retained by the
+operator until released under §10; loss of a sealed week's seed is a
+`seed-loss` incident (§12).
+
+### 4.2 Key derivation
+
+All derivations use HKDF-SHA256 as defined in RFC 5869, with the salt
+parameter empty and output length 32 bytes. (Under HMAC key padding, an
+empty salt is equivalent to RFC 5869's default salt of 32 zero bytes;
+both produce identical output.) With IKM = week_seed:
+
+- **Leaf salt** for a leaf: `HKDF(week_seed, info = leaf_id-bytes)`,
+  where leaf_id-bytes is the UTF-8 encoding of the leaf_id (§2), e.g.
+  `chronos/QQQ`.
+- **archive_key**: `HKDF(week_seed, info = "archive")` (the 7 ASCII
+  bytes `archive`).
+
+Test vectors for both derivations, alongside the RFC 5869 A.1 reference
+vector, are pinned in `protocol/test-vectors/v1/hkdf.json`.
+
+### 4.3 Leaf commitment
+
+The commitment to a leaf is
+
+    SHA-256(canonical_leaf_bytes ‖ salt)
+
+where `canonical_leaf_bytes` is the leaf's canonical serialization (§3)
+and `salt` is that leaf's 32-byte leaf salt (§4.2). Commitments are
+written as lowercase hex.
+
+Each commitment is stored one per file at
+
+    hashes/<model-slug>/<week>/<TICKER>.sha256
+
+containing exactly the 64 hex characters plus a single trailing newline
+(65 bytes).
+
+### 4.4 week_seed_hash
+
+`week_seed_hash` = SHA-256(week_seed), lowercase hex, published in the
+weekly manifest (§6). When the seed is released under §10, anyone can
+check the released seed against this hash.
+
+### 4.5 Rationale (informative)
+
+Salts are mandatory because per-ticker predictions have only a few bits
+of entropy: an unsalted commitment could be reversed by enumerating the
+small space of plausible predictions and hashing each candidate. The
+per-leaf salt makes each commitment individually openable (one leaf can
+be revealed without exposing its siblings), and deriving all salts from
+one week_seed makes the eventual full release of §10 a single value.
+
+## 5. Merkle tree
+
+### 5.1 Construction
+
+Each week's commitments form one Merkle tree:
+
+1. **Leaf order.** Leaves are ordered by leaf_id ascending in bytewise
+   order (§2). This order is recorded verbatim as the manifest's
+   `leaf_ids` array, and index i in every structure of this protocol
+   refers to position i (0-based) in this order.
+2. **Leaf node.** `SHA-256(0x00 ‖ commitment-bytes(32))`, where
+   commitment-bytes is the 32-byte decoding of the leaf's commitment
+   (§4.3).
+3. **Interior node.** `SHA-256(0x01 ‖ left(32) ‖ right(32))`. At each
+   level, nodes are paired left to right: positions (0,1), (2,3), ….
+4. **Odd promotion.** An unpaired (odd) node at any level is promoted
+   unchanged to the next level. It is not hashed again and not paired
+   with itself.
+5. **Root.** The process repeats until one node remains; that node is
+   the Merkle root, recorded in the manifest as lowercase hex. A
+   single-leaf tree's root is its leaf node.
+
+The `0x00`/`0x01` domain-separation prefixes are a second-preimage
+defense: they make it impossible to present an interior node as a leaf
+(or a leaf as an interior node) of some other tree over the same bytes.
+
+### 5.2 Inclusion proofs
+
+An inclusion proof for index i is the array of sibling node hashes on
+the path from leaf node i to the root, encoded as an array of
+`["L"|"R", hex]` pairs, root-most pair last:
+
+- `"L"` means the sibling is the left input at that level; the verifier
+  computes `h = SHA-256(0x01 ‖ sibling ‖ h)`.
+- `"R"` means the sibling is the right input; the verifier computes
+  `h = SHA-256(0x01 ‖ h ‖ sibling)`.
+- A level at which the current node is promoted (rule 4 above)
+  contributes no pair.
+
+Sibling values are node hashes (leaf nodes or interior nodes), never raw
+commitments. Verification starts from `h = SHA-256(0x00 ‖
+commitment-bytes)` and succeeds iff the final `h` equals the Merkle
+root.
+
+### 5.3 Worked example
+
+Three commitments (c0, c1, c2 — here SHA-256 of the ASCII strings
+`tsw:example:0`, `tsw:example:1`, `tsw:example:2`, in tree order):
+
+    c0 = bdba9ea154feb501b354e51fdb089a01602ab5edd086790b687242bffdcec537
+    c1 = 1f22497196b79affc9851add93b4f8275d6386ad856b1f989bf160b39b1283d4
+    c2 = 2b2019c0d45ad60aa3ee1e235eef0f69cd944c3dd8c3addbba2941a7437ad22b
+
+Leaf nodes `l_i = SHA-256(0x00 ‖ c_i)`:
+
+    l0 = 1608272390db385177d7abe7effa5461afec68386ab97ded9b4b8158c2f92634
+    l1 = bb51005431fa0722692a67c4cfc96951364fcbd5ef712d47b2510bd2b4fc3879
+    l2 = 6f7cecb5f51b021d7c71c2e7f8fedd071ad76cfde9290c5d8010299b79c8ca50
+
+Level 1: `h01 = SHA-256(0x01 ‖ l0 ‖ l1)`; l2 is odd and promoted:
+
+    h01 = 000ed20e9182756e7c92ff27176383d7786a0965d75ecb0a44a2ea8858959353
+
+Root: `SHA-256(0x01 ‖ h01 ‖ l2)`:
+
+    32ebe6ce0ebd67051523766848cba3da5e80f36a3667dcc291bba5039585da96
+
+These values were generated by executing the construction above; they
+also appear, together with 1-, 2-, and 5-leaf roots and an inclusion
+proof, in `protocol/test-vectors/v1/merkle.json`, and the two MUST
+agree.
+
+## 6. Weekly manifest
+
+### 6.1 File
+
+Path: `manifests/<week>.manifest.json`, canonical serialization (§3).
+The manifest is the root document of the week: every other artifact is
+reachable from it by hash.
+
+### 6.2 Fields
+
+All fields are required unless noted. Hash-valued fields are lowercase
+hex (§2).
+
+- `week` — the week key (§2) of the sealed cycle.
+- `sequence` — integer; 1-based count of sealed cycles in this record,
+  including this one and including the 2026-W34 bootstrap week (§13.3).
+  The first full manifest, 2026-W35, therefore carries `sequence` 2.
+  Consecutive manifests MUST increment `sequence` by exactly 1.
+- `protocol_version` — the semver string of the governing protocol; for
+  weeks governed by this document, exactly `"1.0.0"`.
+- `protocol_sha256` — SHA-256 of the governing `protocol/vX.Y.Z.md`
+  file's bytes as committed.
+- `prev_manifest_sha256` — SHA-256 of the previous week's manifest file
+  bytes as committed. Genesis value = 64 zeros, used only by the first
+  manifest of a record with no predecessor. In this record the chain
+  head is the 2026-W34 bootstrap manifest (§13.3), and the 2026-W35
+  manifest MUST pin the SHA-256 of that file's bytes.
+- `roster_sha256` — SHA-256 of `roster.json`'s bytes at seal.
+- `universe_sha256` — SHA-256 of `universe.json`'s bytes at seal.
+- `merkle_root` — the §5 root over this week's commitments.
+- `leaf_count` — integer; number of leaves in the tree.
+- `leaf_ids` — array of leaf_id strings, in exactly the tree order of
+  §5.1 (bytewise ascending); its length MUST equal `leaf_count`.
+- `week_seed_hash` — §4.4.
+- `cycle_manifest` — the app-facing cycle hash: SHA-256 over the
+  canonical bytes (§3) of the app wire cycle payload with its integrity
+  fields (`manifest`, `sealCommit`, `revealCommit`, `anchorBlock`,
+  `resolved`) removed, as computed by the sealed pipeline. This binds
+  the record to the exact cycle the app displays.
+- `grading_sha256` — SHA-256 of the grading source file bytes: the
+  sealed pipeline's source file implementing the grading rule of §8.3.
+  A change in this value between weeks is a declared change of grading
+  implementation.
+- `derive_script_sha256` — SHA-256 of `scripts/derive_indices.py` bytes
+  as committed in this repository (§9.3).
+- `drand` — object `{chain_hash, round, target_time_utc}` pinning the
+  audit beacon per §9.2: the quicknet chain hash, the precomputed round
+  number (integer), and the target time as an ISO-8601 UTC instant
+  (e.g. `2026-08-29T04:00:00Z`).
+- `price_source` — exactly this fixed string (a single line with
+  single spaces; shown here unwrapped):
+
+      Yahoo Finance daily closes, auto-adjusted, via the sealed pipeline's pinned fetcher
+
+- `repo_git_sha` — nullable; the git commit SHA of this repository's
+  HEAD at the time the manifest was assembled (the manifest cannot
+  contain the hash of its own commit). Hygiene only; trust rests on §7.
+- `prev_incident_sha256` — SHA-256 of the latest (highest-numbered)
+  `incidents/NNN.json` file's bytes at seal. This anchors the incident
+  chain into the timestamped manifest chain.
+- `sealed_at` — ISO-8601 timestamp with offset of the seal.
+- `record_status` — `"intact"` | `"void"` per §12.4.
+- `archive_sha256` — SHA-256 of the published encrypted archive file
+  bytes (§10.3).
+- `archive_size` — integer; size in bytes of that same file.
+- `archive_cipher` — the fixed string `"aes-256-gcm"`.
+- `archive_release` — object `{embargo_weeks, tlock_chain,
+  tlock_round, policy}` with `embargo_weeks: 104`, `policy` exactly
+  the string
+  `"tlock+manual; missed-manual-when-tlock-dead = incident"`,
+  and `tlock_chain`/`tlock_round` per §10.4.
+- `seed_tle_sha256` — SHA-256 of `release/<week>.seed.tle` bytes
+  (§10.4).
+
+### 6.3 Chain rule
+
+Because each manifest embeds `prev_manifest_sha256` (and, through it,
+every hash above), one OTS stamp per week transitively timestamps all
+history: attesting week N's manifest bytes attests every prior manifest,
+commitment, label file pin, and incident pin reachable from it.
+
+## 7. Timestamping
+
+### 7.1 OpenTimestamps
+
+At seal, the manifest bytes are stamped with OpenTimestamps. The proof
+file lives at repository ROOT as `<week>.manifest.ots`. The stamp is
+committed in pending form at seal and MUST be upgraded to a
+Bitcoin-attested proof within 7 days of seal; upgrading replaces
+the `.ots` file contents in a normal forward commit, which is expected
+and is not a history rewrite. The upgraded proof's Bitcoin block height
+is the `anchorBlock` shown in the app; if the proof contains multiple
+Bitcoin attestations, the lowest block height is used.
+
+### 7.2 RFC 3161
+
+Also at seal, RFC 3161 timestamp tokens over the manifest bytes are
+obtained from two independent TSAs — the Sectigo qualified endpoint and
+DigiCert — and stored at:
+
+    stamps/<week>/manifest.<tsa>.tsq
+    stamps/<week>/manifest.<tsa>.tsr
+
+with `<tsa>` ∈ {`sectigo`, `digicert`}. The `.tsq` request (SHA-256
+message imprint of the manifest bytes) is retained so that
+`openssl ts -verify` runs offline against the `.tsr`. The TSA CA chains
+are vendored in `tsa/` so verification requires no network access.
+
+### 7.3 Label stamps
+
+The Friday label vector (§8) is separately RFC 3161-stamped, same TSAs
+and layout:
+
+    stamps/<week>/labels.<tsa>.tsq
+    stamps/<week>/labels.<tsa>.tsr
+
+over the bytes of `labels/<week>.json`. These stamps carry the ordering
+proof of §8.5.
+
+## 8. Outcome labels
+
+### 8.1 File
+
+Path: `labels/<week>.json`, canonical serialization (§3), published
+Friday after grading (SHOULD: by 23:59:59 ET of the cycle week's
+Friday; the hard deadline is §8.5). The file is a JSON object:
+
+    {"week": <week key>, "entries": [ ... ]}
+
+### 8.2 Entries
+
+`entries` contains one entry per leaf index 0..leaf_count-1, exactly
+once, sorted by `index` ascending. Each entry is an object:
+
+    {index, model, ticker, outcome, actual, reference, final_close,
+     error}
+
+- `index` — integer; the leaf's position in the manifest's `leaf_ids`.
+- `model` — the leaf's model-slug; MUST match `leaf_ids[index]`.
+- `ticker` — the leaf's TICKER; MUST match `leaf_ids[index]`.
+- `outcome` — `"win"` | `"loss"` | `"scratch"` | `"abstain"`.
+- `actual` — nullable float; the graded weekly percent move (§8.3).
+- `reference` — nullable float; the auto-adjusted daily close of the
+  last trading day strictly before the cycle week's Monday (normally
+  the prior Friday), as sealed in the leaf, from `price_source`.
+- `final_close` — nullable float; the auto-adjusted daily close of the
+  cycle week's last trading day, from `price_source`.
+- `error` — nullable float; `round(predicted − actual, 1)` where
+  `predicted` is the sealed leaf's predicted percent move.
+
+For `abstain` entries, `actual`, `reference`, `final_close`, and
+`error` are all null. For all other outcomes all four are non-null.
+
+### 8.3 Grading rule
+
+Verbatim from the pipeline:
+
+    actual = round((final_close/reference − 1) × 100, 2)
+
+outcome: scratch iff `actual == 0.0` exactly; else win iff
+`(direction == LONG) == (actual > 0)`; else loss. abstain = leaf sealed
+without a surviving forecast, null numerics.
+
+`direction` is the sealed leaf's direction field, `"LONG"` or
+`"SHORT"`. `round(x, n)` denotes Python 3's built-in `round` on IEEE
+754 binary64 values (round-half-to-even at the nearest representable
+decimal); implementations MUST reproduce it bit-for-bit. The scratch
+comparison applies to the rounded value: a raw move that rounds to 0.00
+is a scratch.
+
+### 8.4 Minimum leaf fields
+
+So that revealed leaves (§9.5) can be checked against their labels,
+every non-abstain leaf MUST contain at least the fields `week`,
+`model`, `ticker`, `direction` (`"LONG"` | `"SHORT"`), `predicted`
+(float, percent), and `reference` (float). An abstain leaf MUST contain
+at least `week`, `model`, and `ticker`, and records the abstention.
+Leaves MAY contain any additional pipeline fields.
+
+### 8.5 THE ORDERING RULE
+
+This rule is load-bearing: the audit of §9 is meaningless unless the
+labels demonstrably predate the randomness that selects the audit
+sample.
+
+The label file MUST be committed and RFC 3161-stamped (§7.3) strictly
+before the beacon round's target time (§9.2). A label commit whose
+verifiable timestamp is not strictly earlier than the target time voids
+the audit and is an incident (`label-after-beacon`, §12). Corrections
+after the beacon are prohibited — errata are new incident entries,
+never edits. A label file committed after Friday 23:59:59 ET but still
+strictly before the target time is a `late-labels` incident; the audit
+stands.
+
+## 9. Random audit
+
+### 9.1 Purpose
+
+Each week, a public randomness beacon selects a sample of leaves that
+the operator MUST open. The beacon fires after the labels are frozen
+(§8.5), so the operator cannot choose which leaves get inspected until
+it is too late to tailor either the reveals or the labels.
+
+### 9.2 Beacon
+
+The beacon is drand quicknet:
+
+- chain_hash:
+  `52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971`
+- genesis: `1692803367` (Unix seconds)
+- period: 3 s
+
+Target time = Saturday 00:00:00 America/New_York of the cycle week
+(ISO day 6 of the week, DST-aware), converted to Unix time. Round:
+
+    round = floor((unix(target) − genesis)/3) + 1
+
+The round is precomputed at seal and pinned in the manifest's `drand`
+object together with the chain hash and the target time as a UTC
+instant. Informative example: for 2026-W35 the target is 2026-08-29
+00:00:00-04:00 = `2026-08-29T04:00:00Z`, unix 1787976000, round
+31724212. The beacon value used below, `beacon_signature_bytes`, is the
+round's BLS signature, decoded from the hex `signature` field of the
+drand round response (quicknet signatures are 48-byte G1 points).
+
+### 9.3 Index derivation
+
+Normative, and implemented verbatim by `scripts/derive_indices.py`,
+whose SHA-256 is pinned in the manifest (`derive_script_sha256`). This
+section defines the algorithm; the script implements it.
+
+    K = max(20, ceil(0.05 × leaf_count))
+
+For counter = 0, 1, 2, …:
+
+    v = HMAC-SHA256(key = beacon_signature_bytes,
+                    msg = UTF-8("<week>|<counter>"))
+
+where `<week>` is the week key and `<counter>` the decimal integer, no
+padding (e.g. `2026-W35|0`, `2026-W35|1`, …). Interpret v as a 256-bit
+big-endian integer; rejection-sample:
+
+    accept iff v < floor(2^256 / leaf_count) × leaf_count
+
+(rejected counters are consumed and skipped, eliminating modulo bias);
+on accept, index = v mod leaf_count; skip duplicates (an index already
+drawn consumes its counter and is discarded); stop at K distinct
+indices. The drawn indices, in acceptance order, are the sampled set. A
+test vector is pinned in `protocol/test-vectors/v1/indices.json`.
+
+### 9.4 Audit set
+
+The audit set = the K sampled indices ∪ every scratch-labeled leaf ∪
+every abstain leaf. Scratch and abstain leaves are always opened
+because they are the two label classes that could otherwise hide a
+miss.
+
+### 9.5 Reveal files
+
+For every leaf in the audit set, a reveal file is published at
+
+    audits/<week>/<model-slug>/<TICKER>.json
+
+canonical serialization (§3), fields:
+
+    {week, index, model, ticker, kind, payload_b64, salt_hex, proof,
+     merkle_root}
+
+- `week`, `index`, `model`, `ticker` — as in §8.2.
+- `kind` — why the leaf is in the audit set: `"sampled"` if its index
+  is among the K of §9.3, else `"scratch"` or `"abstain"` per its
+  label. (`"sampled"` takes precedence when both apply.)
+- `payload_b64` — base64 (§2) of the exact canonical leaf bytes.
+- `salt_hex` — the leaf's 32-byte salt (§4.2), hex.
+- `proof` — the §5.2 inclusion proof: array of `["L"|"R", hex]` pairs.
+- `merkle_root` — copy of the manifest's `merkle_root`.
+
+### 9.6 Audit record
+
+A per-week audit record is published at `audits/<week>/beacon.json`,
+canonical serialization (§3), fields: `{week, source ("drand" |
+"bitcoin-fallback"), round (nullable), signature_hex (nullable),
+block_height (nullable), block_hash (nullable), k, indices,
+audit_set}` — for `source` `"drand"`, `round` and `signature_hex` are
+non-null and the block fields null; for `"bitcoin-fallback"` the
+reverse. `indices` is the K sampled indices in acceptance order;
+`audit_set` is the full §9.4 set, ascending. Using the fallback is
+itself noted in that week's audit record via `source`.
+
+### 9.7 Deadline
+
+All reveal files and the audit record MUST be published within 24 h of
+the beacon round's target time. Anyone can compute the owed indices
+from the public beacon value and the manifest; a missing or unopenable
+reveal = failed audit = incident (`missed-audit` or `unopenable-leaf`,
+§12).
+
+### 9.8 Fallback beacon
+
+If drand is unreachable ≥6 h past the target time (the pinned round's
+signature cannot be fetched from any public quicknet endpoint), the
+fallback beacon is Bitcoin: the lowest-height Bitcoin block whose
+header timestamp strictly exceeds the target time, on the most-work
+chain after 6 confirmations. `beacon_signature_bytes` is then the 32
+bytes of that block's hash, decoded from its conventional big-endian
+hex display form (as returned by `bitcoind getblockhash`). Using the
+fallback is itself noted in that week's audit record (§9.6). Should the
+pinned drand signature later become available, the fallback-derived
+audit remains the audit of record for that week.
+
+## 10. Encrypted archive and release
+
+### 10.1 Contents
+
+Each week's full archive contains the leaves, their salts, the
+week_seed, a copy of the manifest, `SUBSCRIBER-LICENSE.md`, and an
+optional human-authored `commentary.md`. Layout inside the tar:
+
+    tensorswing-<week>/manifest.json      copy of the manifest bytes
+    tensorswing-<week>/week_seed          64 hex chars + newline
+    tensorswing-<week>/leaves/<model-slug>/<TICKER>.json
+                                          exact canonical leaf bytes
+    tensorswing-<week>/salts/<model-slug>/<TICKER>.salt
+                                          64 hex chars + newline
+    tensorswing-<week>/SUBSCRIBER-LICENSE.md
+    tensorswing-<week>/commentary.md      optional
+
+### 10.2 Distribution
+
+The archive is a paid product delivered to Professional subscribers at
+seal, AND published publicly as ciphertext: the file
+`tensorswing-<week>.tar.gz.enc` attached to the GitHub Release tagged
+`<week>`.
+
+### 10.3 Cipher
+
+Cipher: AES-256-GCM. The published file is
+
+    nonce(12) ‖ ciphertext ‖ tag(16)
+
+with a fresh random 12-byte nonce, empty associated data, and
+key = archive_key (§4). `archive_sha256` and `archive_size` in the
+manifest are the SHA-256 and byte length of this exact file, so the
+public ciphertext is committed before anyone can decrypt it.
+
+### 10.4 Release policy (pre-committed)
+
+The week_seed becomes public at `sealed_at` + 104 weeks (exactly
+104 × 604800 seconds; the "embargo instant") via BOTH:
+
+- (a) `release/<week>.seed.tle` — the week_seed (raw 32 bytes)
+  tlock-encrypted (drand quicknet, the tlock scheme of the reference
+  drand/tlock implementation, ASCII-armored) to the manifest-pinned
+  `tlock_round`, published at seal. `tlock_chain` is the quicknet
+  chain hash (§9.2); `tlock_round` is computed from the embargo
+  instant by the §9.2 round formula. Anyone holding the round's
+  signature can decrypt without the operator's cooperation.
+- (b) manual publication of `release/<week>.seed` — 64 lowercase hex
+  characters plus a single trailing newline — at the embargo date,
+  and no later than 72 h after the embargo instant.
+
+If tlock is unavailable (network dissolved), the manual path is
+mandatory and a missed manual release is an incident
+(`missed-release`, §12). While the tlock network is operating, a late
+manual release is a SHOULD-violation, not an incident — the seed is
+already publicly decryptable.
+
+The released seed MUST hash to the manifest's `week_seed_hash`.
+Decrypting the released seed re-derives every salt and the archive key
+(§4.2) — one release opens the entire week: every leaf, every salt,
+and the archive plaintext become checkable against every commitment.
+This is a self-executing promise; the operator cannot suppress a past
+week. Early release of a week_seed is permitted (it only weakens the
+operator's own confidentiality, never the record).
+
+## 11. Roster and universe changes
+
+Changes to `roster.json` or `universe.json` take effect no earlier than
+one full cycle after the commit that introduces them. The manifest pins
+both files' hashes (`roster_sha256`, `universe_sha256`), so the
+verifier enforces this by comparing pinned hashes across consecutive
+manifests and requiring any change to have been committed at least one
+sealed week earlier: if week N's manifest pins a hash different from
+week N−1's, the commit introducing the new file bytes MUST predate week
+N−1's `sealed_at`. A change violating this notice period is a
+`commitment-mismatch` incident.
+
+Dropped models' history remains in all aggregates permanently: removing
+a model from the roster stops new leaves, and MUST NOT remove, exclude,
+or re-weight its past leaves, labels, or any published aggregate.
+
+## 12. Incidents
+
+### 12.1 Format
+
+Incidents are recorded at `incidents/NNN.json` (NNN zero-padded 3-digit
+number, starting at `000`), canonical serialization (§3), fields:
+
+    {number, kind, week, detail, prev_incident_sha256, recorded_at}
+
+- `number` — integer; MUST equal the filename's NNN.
+- `kind` — one of the kinds of §12.3, or `genesis` for entry 000 only.
+- `week` — nullable; the week key the incident concerns, if any.
+- `detail` — free-text description; MUST state what happened, what it
+  affects, and the forward correction, if any.
+- `prev_incident_sha256` — SHA-256 of the previous entry's file bytes;
+  64 zeros for the genesis entry.
+- `recorded_at` — ISO-8601 timestamp with offset.
+
+### 12.2 Chain
+
+Each entry carries the SHA-256 of the previous entry's bytes; entry 000
+is the genesis with prev = 64 zeros. The chain hashes file bytes as
+committed. (Grandfather note: this record's `incidents/000.json`
+predates protocol 1.0.0 and is not in canonical form; since the chain
+hashes committed bytes, this does not affect verification. Entries 001
+and above MUST be canonical.) Each weekly manifest pins the latest
+entry (`prev_incident_sha256`, §6.2), so incidents cannot be silently
+removed or rewritten after the next seal. Incidents are permanent;
+corrections happen forward — an erroneous incident entry is corrected
+by a subsequent entry, never by editing.
+
+### 12.3 Kinds
+
+- `late-seal` — manifest sealed at or after Monday 09:30:00 ET of its
+  cycle week (§2 "Seal").
+- `late-labels` — label file committed after Friday 23:59:59 ET but
+  strictly before the beacon target time (§8.5).
+- `label-after-beacon` — label file whose verifiable timestamp is not
+  strictly earlier than the beacon target time; voids the week's audit
+  (§8.5).
+- `missed-audit` — an owed reveal file or audit record absent 24 h
+  after the beacon target time (§9.7).
+- `unopenable-leaf` — a published reveal that fails recanonicalization,
+  the salted-hash check, or its Merkle proof (§13 step 7).
+- `commitment-mismatch` — any published hash that fails recomputation
+  from the bytes it commits to (including §11 notice violations).
+- `seed-loss` — the operator can no longer produce a sealed week's
+  week_seed; the week can never fully open (§4.1).
+- `missed-release` — `release/<week>.seed` not published within the
+  §10.4 deadline while tlock is unavailable.
+- `history-rewrite` — any rewrite of published git history, or any edit
+  to a sealed artifact's bytes (other than the §7.1 OTS upgrade).
+- `grading-defect` — a defect in the grading implementation or its
+  price inputs affecting published labels; errata recorded forward per
+  §8.5.
+- `other` — anything else the operator or a verifier surfaces that
+  merits a permanent record.
+
+### 12.4 THE VOID RULE (pre-committed)
+
+If 2 or more non-genesis incidents have `recorded_at` instants within
+any rolling 52-week window (difference ≤ 52 × 604800 seconds), then the
+next manifest — the first sealed at or after the second such incident's
+`recorded_at` — sets `record_status` `"void"`, and the README status
+line changes to VOID.
+
+Void is a one-way latch: every subsequent manifest carries `"void"`,
+regardless of later quiet weeks. The record is marked, never deleted:
+all artifacts remain published and verifiable, and the record continues
+to be produced. The only path back to an intact record is a new record
+with a new genesis, which MUST NOT reuse this record's name.
+
+## 13. Verification procedure
+
+### 13.1 Checklist
+
+This section is the definition of verification; `verify.py` (in
+`scripts/`) is an implementation of this section, not its definition. A
+verifier implements, in order, for each week from oldest to newest:
+
+1. **Protocol pin.** Compute SHA-256 of the `protocol/vX.Y.Z.md` named
+   by the manifest's `protocol_version`; it MUST equal
+   `protocol_sha256`.
+2. **Manifest chain walk.** `prev_manifest_sha256` MUST equal the
+   SHA-256 of the previous week's manifest file bytes (bootstrap or
+   full); `sequence` MUST increment by 1. Week keys SHOULD be
+   consecutive ISO weeks; a skipped week does not break the chain,
+   but MUST be covered by an incident entry (`late-seal` or `other`),
+   and the verifier reports it.
+3. **Roster/universe change-notice.** Compare `roster_sha256` and
+   `universe_sha256` against the previous manifest; on change, enforce
+   §11 using git commit history.
+4. **Merkle root rebuild.** Read every
+   `hashes/<model-slug>/<week>/<TICKER>.sha256`; the file set MUST
+   correspond one-to-one with `leaf_ids`; rebuild the §5 tree in
+   `leaf_ids` order (which MUST itself be bytewise ascending); the
+   root MUST equal `merkle_root` and the count `leaf_count`.
+5. **Label coverage.** `labels/<week>.json` MUST contain exactly one
+   entry per index 0..leaf_count−1, with `model`/`ticker` matching
+   `leaf_ids`, outcomes and numerics well-formed per §8.
+6. **Audit indices.** Fetch the pinned beacon round (or apply §9.8);
+   recompute K and the sampled indices per §9.3; the audit record
+   (§9.6) MUST match; the owed set is §9.4.
+7. **Reveals.** For every owed leaf: decode `payload_b64`; parse and
+   re-serialize per §3 — the result MUST be byte-identical to the
+   decoded payload (recanonicalization); compute
+   SHA-256(payload ‖ salt) — it MUST equal the leaf's `hashes/` file
+   value; verify the §5.2 proof to `merkle_root`; check label
+   consistency — the leaf's `week`/`model`/`ticker` match, the label's
+   `reference` equals the leaf's, `actual`/`outcome`/`error` follow
+   §8.3 from the leaf's `direction` and `predicted`; and check price
+   plausibility — the verifier SHOULD compare `final_close` and
+   `reference` against an independent daily-close source, flagging
+   deviations beyond 1% (informative tolerance; adjusted-close methods
+   differ slightly between sources).
+8. **OTS verify.** Verify `<week>.manifest.ots` attests the manifest
+   bytes; extract the Bitcoin block height/time. A still-pending stamp
+   within 7 days of seal is PENDING, not FAIL.
+9. **RFC 3161 verify.** For both TSAs, `openssl ts -verify` the
+   manifest and label tokens offline against `tsa/` chains. Each label
+   token's genTime MUST be strictly earlier than the beacon target
+   time (§8.5).
+10. **Archive.** The GitHub Release tagged `<week>` MUST carry
+    `tensorswing-<week>.tar.gz.enc` whose SHA-256 and size equal
+    `archive_sha256` and `archive_size`.
+11. **Seed release.** `release/<week>.seed.tle` MUST exist with
+    SHA-256 equal to `seed_tle_sha256`. For weeks past their embargo
+    instant: `release/<week>.seed` MUST exist, its seed MUST hash to
+    `week_seed_hash`, and the verifier SHOULD re-derive every salt and
+    the archive key (§4.2), decrypt the archive (§10.3), and recompute
+    every commitment (§4.3) — full-set verification.
+
+### 13.2 PENDING semantics
+
+Weeks younger than their Friday/Saturday artifacts report PENDING, not
+FAIL: absence of labels, stamps, audit record, reveals, or an upgraded
+OTS proof before that artifact's own deadline (§7.1, §8.5, §9.7) is
+PENDING. FAIL is reserved for a hash mismatch, a broken proof, a
+violated MUST, or an artifact still missing after its deadline.
+
+### 13.3 Bootstrap week 2026-W34
+
+Week 2026-W34 is a BOOTSTRAP week, run to prove the pipeline end to
+end before the steady-state format begins with 2026-W35. Its manifest
+is reduced — fields `(week, cycle_sha256, note, stamped_at)` — at
+`manifests/2026-W34.manifest.json`, with its OTS stamp at
+`2026-W34.manifest.ots`. It is valid under this protocol as a
+historical artifact and is checked only for its OTS stamp (step 8); no
+other step applies to it, and it participates in step 2 only as the
+chain head (§6.2) whose bytes the 2026-W35 manifest pins. It counts in
+`sequence` (§6.2).
+
+## 14. Versioning
+
+This protocol is versioned by semver. A week is governed by the
+protocol version its manifest pins (`protocol_version`,
+`protocol_sha256`), permanently: re-grading or re-verifying an old week
+always uses that week's pinned version. Changes apply forward only — a
+new `protocol/vX.Y.Z.md` governs weeks sealed after its adoption and
+never alters the meaning of any sealed week.
+
+The root `PROTOCOL.md` is always a byte-identical copy of the latest
+versioned protocol file, enforced by CI. Amendments never alter
+`protocol/v1.0.0.md` after merge; this file is immutable, and any edit
+to it after merge is a `history-rewrite` incident (§12.3).
