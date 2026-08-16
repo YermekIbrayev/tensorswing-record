@@ -75,9 +75,14 @@ As weeks are sealed, this repo fills in:
 manifests/                                weekly commitment manifests
 hashes/<model>/<week>/<TICKER>.sha256     per-leaf commitment hashes
 labels/                                   published outcome labels
-audits/                                   weekly randomness-beacon spot-check results
-proofs/                                   Merkle proofs for disclosed/spot-checked leaves
+audits/<week>/                            beacon audit record + reveal files
+                                          (each reveal carries its own Merkle proof)
 incidents/                                incident log (hash-chained, genesis at 000.json)
+stamps/<week>/                            RFC 3161 timestamp tokens (Sectigo + DigiCert)
+tsa/                                      vendored TSA CA chains for offline token checks
+release/<week>.seed.tle                   timelock-encrypted week seed (opens at embargo)
+scripts/                                  verify.py + the pinned derive_indices.py
+protocol/                                 versioned protocol texts + test vectors
 <week>.manifest.ots                       OpenTimestamps proof for that week's manifest, at repo root
 ```
 
@@ -87,6 +92,55 @@ for both.
 
 Each week's full archive is also published here encrypted, and opens
 automatically 24 months after its seal.
+
+## Verify it yourself
+
+The record is designed so a skeptical stranger can check it without
+trusting us. `PROTOCOL.md` §13 defines the procedure; `scripts/verify.py`
+is one implementation of it, written against the protocol text and
+runnable with nothing but Python (≥ 3.9) and this repo:
+
+```
+git clone https://github.com/YermekIbrayev/tensorswing-record
+cd tensorswing-record
+python scripts/verify.py                # every sealed week
+python scripts/verify.py 2026-W35      # one week
+python scripts/verify.py --all         # also fetch + check the release archive
+python scripts/verify.py --verify-beacon  # cross-check the drand beacon mirrors
+```
+
+It prints one PASS/FAIL/PENDING/SKIPPED row per check and exits non-zero
+only on FAIL. **PENDING** means the week is younger than that artifact's
+own deadline (labels land Friday, the audit lands Saturday, the Bitcoin
+attestation lands within 7 days of seal) — absence before a deadline is
+expected, not a failure. **2026-W34 reports BOOTSTRAP**: a reduced-schema
+shakedown week checked only for presence and its OpenTimestamps stamp.
+
+Two checks are stronger run with dedicated tools, and verify.py prints
+the exact commands:
+
+```
+# Bitcoin anchoring (OpenTimestamps; needs: pip install opentimestamps-client)
+ots verify 2026-W35.manifest.ots -f manifests/2026-W35.manifest.json
+
+# RFC 3161 timestamp tokens, offline, against the vendored CA chains
+openssl ts -verify -queryfile stamps/2026-W35/manifest.sectigo.tsq \
+  -in stamps/2026-W35/manifest.sectigo.tsr -CAfile tsa/sectigo-chain.pem
+```
+
+**What verify.py does not do:** it does not check the drand beacon's BLS
+signature (that needs pairing cryptography outside Python's standard
+library). `--verify-beacon` instead fetches the round from independent
+drand mirrors and byte-compares them, which defends against a fabricated
+beacon value unless every queried mirror colludes; for full assurance run
+a drand client against the pinned round. It also leaves price
+plausibility to you: compare the published `reference`/`final_close`
+values against any independent daily-close source (§13 suggests a 1%
+informative tolerance for adjusted-close differences).
+
+Per the honesty template this record is built on, the timestamp "removes
+exactly one trust assumption — that we could have backdated our own
+record — and that is all it removes."
 
 ## Trust model
 
