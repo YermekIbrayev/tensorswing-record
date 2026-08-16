@@ -1,0 +1,27 @@
+# GitHub build-provenance attestation over the weekly manifests: every
+# push that touches manifests/** produces a signed, publicly auditable
+# Sigstore attestation binding the manifest bytes to this repo+workflow.
+# Verify with:  gh attestation verify manifests/<week>.manifest.json \
+#                 --repo YermekIbrayev/tensorswing-record
+name: attest
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "manifests/**"
+
+permissions:
+  id-token: write
+  attestations: write
+  contents: read
+
+jobs:
+  attest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: "manifests/*.manifest.json"

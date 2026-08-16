@@ -1,0 +1,50 @@
+# Continuous self-verification: every push and PR re-runs the public
+# verifier over every week in the repo, plus the unit suite. This is the
+# required status check for main.
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # §11 change-notice checks read git history
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: protocol integrity — root PROTOCOL.md byte-equals the highest protocol/vX.Y.Z.md (§14)
+        run: |
+          python - <<'EOF'
+          import re, sys
+          from pathlib import Path
+          versions = sorted(
+              (tuple(map(int, m.groups())), p)
+              for p in Path("protocol").glob("v*.md")
+              if (m := re.match(r"^v(\d+)\.(\d+)\.(\d+)\.md$", p.name))
+          )
+          if not versions:
+              sys.exit("no protocol/vX.Y.Z.md files found")
+          latest = versions[-1][1]
+          if Path("PROTOCOL.md").read_bytes() != latest.read_bytes():
+              sys.exit(f"PROTOCOL.md is not a byte-identical copy of {latest} (§14)")
+          print(f"PROTOCOL.md == {latest}")
+          EOF
+
+      - name: unit tests (golden week + broken variants)
+        run: python -m unittest discover -s tests -v
+
+      - name: verify every week present in the repo
+        run: python scripts/verify.py --all --offline

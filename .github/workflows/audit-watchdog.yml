@@ -1,0 +1,143 @@
+# Lateness watchdog. verify.py reports PENDING for artifacts before their
+# deadlines and FAIL after; this workflow is what turns "after" into noise:
+#
+#   Sunday leg — the cycle week sealed 7 days prior has passed all of its
+#   Friday/Saturday deadlines by Sunday 13:00 UTC; run the verifier on
+#   exactly that week and open an issue if anything owed is missing/FAIL.
+#
+#   Monday leg — after ots-upgrade has run, warn if the newest root .ots
+#   still lacks a Bitcoin attestation; escalate to an issue once the §7.1
+#   7-day deadline is blown.
+name: audit-watchdog
+
+on:
+  schedule:
+    - cron: "0 13 * * 0" # Sunday leg
+    - cron: "0 13 * * 1" # Monday leg
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sunday-artifacts:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 13 * * 0'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: verify the week whose deadlines just passed
+        id: check
+        run: |
+          week=$(python -c 'import datetime; iso = datetime.datetime.now(datetime.timezone.utc).isocalendar(); print(f"{iso.year}-W{iso.week:02d}")')
+          echo "week=$week" >> "$GITHUB_OUTPUT"
+          if [ ! -e "manifests/$week.manifest.json" ]; then
+            n=$(ls manifests/*.manifest.json 2>/dev/null | wc -l)
+            if [ "$n" -eq 0 ]; then
+              echo "no manifests in the repo yet; nothing to watch"
+              exit 0
+            fi
+            echo "manifests/$week.manifest.json is MISSING — the seal 7 days ago never landed" | tee failure.txt
+            exit 1
+          fi
+          python scripts/verify.py "$week" --offline | tee report.txt
+          # verify.py exits non-zero iff something FAILed (missing past
+          # deadline included); PENDING never fails it.
+
+      - name: open an issue on failure
+        if: failure()
+        env:
+          WEEK: ${{ steps.check.outputs.week }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          week="$WEEK"
+          title="audit-watchdog: $week artifacts missing or failing past deadline"
+          body=$(printf 'The Sunday watchdog run failed for week %s.\n\n```\n%s\n```\nRun: %s\n' \
+            "$week" "$(tail -c 60000 report.txt 2>/dev/null || cat failure.txt 2>/dev/null || echo 'see workflow log')" \
+            "$RUN_URL")
+          existing=$(gh issue list --state open --search "in:title audit-watchdog: $week" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi
+
+  monday-ots:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 13 * * 1'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: install opentimestamps client
+        run: pip install opentimestamps-client
+
+      - name: check the newest stamp for a Bitcoin attestation
+        id: ots
+        run: |
+          python - <<'EOF'
+          import os, sys
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          from opentimestamps.core.timestamp import DetachedTimestampFile
+          from opentimestamps.core.notary import BitcoinBlockHeaderAttestation
+          from opentimestamps.core.serialize import BytesDeserializationContext
+
+          stamps = sorted(Path(".").glob("*.manifest.ots"))
+          if not stamps:
+              print("no stamps yet; nothing to watch")
+              sys.exit(0)
+          newest = stamps[-1]  # week keys sort lexicographically
+          ctx = BytesDeserializationContext(newest.read_bytes())
+          d = DetachedTimestampFile.deserialize(ctx)
+          heights = [a.height for _, a in d.timestamp.all_attestations()
+                     if isinstance(a, BitcoinBlockHeaderAttestation)]
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"stamp={newest.name}\n")
+          if heights:
+              print(f"{newest.name}: Bitcoin attestation at height {min(heights)}")
+              sys.exit(0)
+          import subprocess
+          r = subprocess.run(["git", "log", "-1", "--format=%cI", "--", str(newest)],
+                             capture_output=True, text=True)
+          committed = datetime.fromisoformat(r.stdout.strip())
+          age = datetime.now(timezone.utc) - committed
+          if age > timedelta(days=7):
+              print(f"::error::{newest.name} still pending {age.days} days after "
+                    "commit — §7.1 7-day upgrade deadline blown")
+              sys.exit(1)
+          print(f"::warning::{newest.name} has no Bitcoin attestation yet "
+                f"(committed {committed.isoformat()}); ots-upgrade should resolve "
+                "this within 7 days of seal (§7.1)")
+          EOF
+
+      - name: open an issue when the deadline is blown
+        if: failure()
+        env:
+          STAMP: ${{ steps.ots.outputs.stamp }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          stamp="$STAMP"
+          title="audit-watchdog: $stamp missing Bitcoin attestation past the 7-day deadline"
+          body=$(printf '§7.1 requires the OTS stamp to be upgraded within 7 days of seal.\nRun: %s\n' \
+            "$RUN_URL")
+          existing=$(gh issue list --state open --search "in:title $stamp" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi

@@ -1,0 +1,54 @@
+# §7.1: OTS stamps are committed pending at seal and MUST carry a Bitcoin
+# attestation within 7 days. Every Monday this job runs `ots upgrade` on
+# the root *.manifest.ots files and pushes any upgraded proofs.
+#
+# Pushing to the protected main branch uses a WRITE DEPLOY KEY stored as
+# the Actions secret RECORD_DEPLOY_KEY (ops provisions the key pair and
+# the secret; this workflow only consumes it). The §7.1 upgrade is the
+# one sanctioned in-place edit of a sealed artifact.
+name: ots-upgrade
+
+on:
+  schedule:
+    - cron: "30 12 * * 1" # Mondays 12:30 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read # the push goes over the deploy key, not GITHUB_TOKEN
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ssh-key: ${{ secrets.RECORD_DEPLOY_KEY }}
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: install opentimestamps client
+        run: pip install opentimestamps-client
+
+      - name: upgrade any non-upgraded stamps
+        run: |
+          shopt -s nullglob
+          for f in *.manifest.ots; do
+            echo "::group::ots upgrade $f"
+            ots upgrade "$f" || echo "$f: not upgradeable yet"
+            echo "::endgroup::"
+          done
+          rm -f -- *.manifest.ots.bak
+
+      - name: commit and push upgraded proofs
+        run: |
+          if git diff --quiet; then
+            echo "no stamps were upgraded"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- *.manifest.ots
+          git commit -m "record: OTS upgrade — Bitcoin attestation for pending stamps (§7.1)"
+          git push origin HEAD:main
