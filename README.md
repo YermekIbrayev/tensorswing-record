@@ -1,5 +1,7 @@
 # tensorswing-record
 
+[![verify](https://github.com/YermekIbrayev/tensorswing-record/actions/workflows/verify.yml/badge.svg)](https://github.com/YermekIbrayev/tensorswing-record/actions/workflows/verify.yml)
+
 **RECORD STATUS: INTACT**
 
 ## What this repo is
