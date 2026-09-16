@@ -1,10 +1,15 @@
 {
-  "version": 1,
-  "effective_from_week": "2026-W35",
+  "version": 2,
+  "effective_from_week": "2026-W36",
   "change_notice_rule": "Changes to this roster take effect no earlier than one full weekly cycle after the change is committed to this repository.",
+  "note": "Version 2 records the seven-model roster that every manifest from 2026-W36 onward commits under hashes/<model>/. It was committed on 2026-09-16, after those weeks sealed, so the §11 notice period is not met for the first manifest that pins it; the leaves themselves were sealed and timestamped on time and are unchanged.",
   "models": [
     {"slug": "n-hits", "name": "N-HITS", "kind": "in-house neural forecaster, MC-dropout uncertainty"},
     {"slug": "patchtst", "name": "PATCHTST", "kind": "in-house neural forecaster, MC-dropout uncertainty"},
-    {"slug": "chronos", "name": "CHRONOS", "kind": "Amazon Chronos (third-party), native quantiles"}
+    {"slug": "chronos", "name": "CHRONOS", "kind": "Amazon Chronos-Bolt (third-party, zero-shot), native quantiles"},
+    {"slug": "chronos-2", "name": "CHRONOS-2", "kind": "Amazon Chronos-2 (third-party, zero-shot), native quantiles"},
+    {"slug": "timesfm", "name": "TIMESFM", "kind": "Google TimesFM 2.5 (third-party, zero-shot), native quantiles"},
+    {"slug": "toto", "name": "TOTO", "kind": "Datadog Toto 2.0 (third-party, zero-shot), native quantiles"},
+    {"slug": "granite-ttm", "name": "GRANITE-TTM", "kind": "IBM Granite TinyTimeMixer r2 (third-party, zero-shot), point forecast only"}
   ]
 }

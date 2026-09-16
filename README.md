@@ -44,19 +44,28 @@ on after-the-fact editing.
 
 ## The models
 
-TensorSwing runs three model families against the same universe each week:
+TensorSwing runs seven models against the same universe each week; every
+model calls every instrument, so a week has 7 × 119 = 833 leaves:
 
 - **N-HITS** (`n-hits`) — in-house neural forecaster, MC-dropout uncertainty.
 - **PATCHTST** (`patchtst`) — in-house neural forecaster, MC-dropout
   uncertainty.
-- **CHRONOS** (`chronos`) — Amazon Chronos (third-party foundation model),
+- **CHRONOS** (`chronos`) — Amazon Chronos-Bolt (third-party, zero-shot),
   native quantiles.
+- **CHRONOS-2** (`chronos-2`) — Amazon Chronos-2 (third-party, zero-shot).
+- **TIMESFM** (`timesfm`) — Google TimesFM 2.5 (third-party, zero-shot).
+- **TOTO** (`toto`) — Datadog Toto 2.0 (third-party, zero-shot).
+- **GRANITE-TTM** (`granite-ttm`) — IBM Granite TinyTimeMixer r2
+  (third-party, zero-shot), point forecast only.
 
 Each model's numeric forecast is paired with an LLM-generated thesis — a
-natural-language explanation of the call. The thesis is descriptive, not a
-fourth model output with its own accuracy claim.
+natural-language explanation of the call. The thesis is descriptive, not an
+eighth model output with its own accuracy claim.
 
-The full roster and change-notice rule live in `roster.json`.
+The full roster and change-notice rule live in `roster.json`. Roster
+version 2 (the seven models above) has been in force since 2026-W36 but was
+committed here on 2026-09-16; `roster.json` carries a note to that effect,
+and the first manifest to pin it will not meet the §11 notice period.
 
 ## Bootstrap week: 2026-W34
 
